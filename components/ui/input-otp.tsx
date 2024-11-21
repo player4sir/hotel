@@ -1,71 +1,88 @@
 'use client';
 
 import * as React from 'react';
-import { OTPInput, OTPInputContext } from 'input-otp';
-import { Dot } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 
-const InputOTP = React.forwardRef<
-  React.ElementRef<typeof OTPInput>,
-  React.ComponentPropsWithoutRef<typeof OTPInput>
->(({ className, containerClassName, ...props }, ref) => (
-  <OTPInput
-    ref={ref}
-    containerClassName={cn(
-      'flex items-center gap-2 has-[:disabled]:opacity-50',
-      containerClassName
-    )}
-    className={cn('disabled:cursor-not-allowed', className)}
-    {...props}
-  />
-));
-InputOTP.displayName = 'InputOTP';
+interface InputOTPProps {
+  value: string;
+  onChange: (value: string) => void;
+  maxLength?: number;
+  className?: string;
+  disabled?: boolean;
+  autoFocus?: boolean;
+  placeholder?: string;
+  'aria-label'?: string;
+}
 
-const InputOTPGroup = React.forwardRef<
-  React.ElementRef<'div'>,
-  React.ComponentPropsWithoutRef<'div'>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('flex items-center', className)} {...props} />
-));
-InputOTPGroup.displayName = 'InputOTPGroup';
+const InputOTP = React.forwardRef<HTMLInputElement, InputOTPProps>(
+  ({ 
+    className,
+    maxLength = 6,
+    value,
+    onChange,
+    disabled,
+    autoFocus,
+    placeholder,
+    'aria-label': ariaLabel,
+    ...props
+  }, ref) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value.replace(/[^0-9]/g, '').slice(0, maxLength);
+      onChange(newValue);
+    };
 
-const InputOTPSlot = React.forwardRef<
-  React.ElementRef<'div'>,
-  React.ComponentPropsWithoutRef<'div'> & { index: number }
->(({ index, className, ...props }, ref) => {
-  const inputOTPContext = React.useContext(OTPInputContext);
-  const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
+    const digits = value.split('');
+    while (digits.length < maxLength) {
+      digits.push('');
+    }
 
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'relative flex h-10 w-10 items-center justify-center border-y border-r border-input text-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md',
-        isActive && 'z-10 ring-2 ring-ring ring-offset-background',
-        className
-      )}
-      {...props}
-    >
-      {char}
-      {hasFakeCaret && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
-        </div>
-      )}
-    </div>
-  );
-});
-InputOTPSlot.displayName = 'InputOTPSlot';
+    return (
+      <div 
+        className="flex gap-2 items-center justify-center"
+        role="group"
+        aria-label={ariaLabel || "OTP Input"}
+      >
+        {digits.map((digit, index) => (
+          <div
+            key={index}
+            className={cn(
+              "relative w-10 h-14",
+              "flex items-center justify-center",
+              "border-2 rounded-md",
+              "bg-background",
+              digit ? "border-primary" : "border-input",
+              disabled ? "opacity-50 cursor-not-allowed" : "",
+              className
+            )}
+          >
+            {digit ? (
+              <span className="text-lg font-semibold">{digit}</span>
+            ) : (
+              <div className="w-2 h-2 rounded-full bg-muted animate-pulse" />
+            )}
+            {index === 0 && (
+              <input
+                ref={ref}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="one-time-code"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                value={value}
+                onChange={handleChange}
+                disabled={disabled}
+                autoFocus={autoFocus}
+                placeholder={placeholder}
+                aria-label={ariaLabel}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+);
 
-const InputOTPSeparator = React.forwardRef<
-  React.ElementRef<'div'>,
-  React.ComponentPropsWithoutRef<'div'>
->(({ ...props }, ref) => (
-  <div ref={ref} role="separator" {...props}>
-    <Dot />
-  </div>
-));
-InputOTPSeparator.displayName = 'InputOTPSeparator';
+InputOTP.displayName = "InputOTP";
 
-export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator };
+export { InputOTP };
