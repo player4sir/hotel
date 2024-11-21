@@ -21,7 +21,8 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "typeRoots": ["./node_modules/@types", "./node_modules/@radix-ui"]
+    "typeRoots": ["./node_modules/@types", "./node_modules/@radix-ui"],
+    "types": ["node"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
