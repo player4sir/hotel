@@ -3,7 +3,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-const serviceData = {
+// 定义处理项目的接口
+interface Treatment {
+  name: string;
+  duration: string;
+  price: string;
+  description: string;
+}
+
+// 定义服务数据的接口
+interface ServiceInfo {
+  name: string;
+  description: string;
+  image: string;
+  duration: string;
+  price: string;
+  treatments: Treatment[];
+}
+
+// 定义服务数据的类型
+type ServiceType = 'massage' | 'facial';
+
+// 使用类型定义服务数据
+const serviceData: Record<ServiceType, ServiceInfo> = {
   massage: {
     name: "Luxury Massage",
     description: "Indulge in our signature massage treatments designed to relax and rejuvenate.",
@@ -60,31 +82,46 @@ const serviceData = {
   },
 };
 
-export default function ServicePage({ params }: { params: { service: string } }) {
-  const service = serviceData[params.service as keyof typeof serviceData];
+export function generateStaticParams() {
+  return Object.keys(serviceData).map((service) => ({
+    service,
+  }));
+}
 
-  if (!service) {
+interface ServicePageProps {
+  params: {
+    service: ServiceType;
+  };
+}
+
+export default function ServicePage({ params }: ServicePageProps) {
+  const { service } = params;
+
+  // 检查服务是否存在
+  if (!serviceData[service]) {
     notFound();
   }
+
+  const serviceInfo = serviceData[service];
 
   return (
     <div className="container mx-auto px-4 py-16">
       <div className="max-w-4xl mx-auto">
         <div className="relative aspect-[21/9] mb-8">
           <img
-            src={service.image}
-            alt={service.name}
+            src={serviceInfo.image}
+            alt={serviceInfo.name}
             className="object-cover w-full h-full rounded-lg"
           />
         </div>
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">{service.name}</h1>
-          <p className="text-muted-foreground">{service.description}</p>
+          <h1 className="text-4xl font-bold mb-4">{serviceInfo.name}</h1>
+          <p className="text-muted-foreground">{serviceInfo.description}</p>
         </div>
 
         <div className="grid gap-6">
-          {service.treatments.map((treatment, index) => (
+          {serviceInfo.treatments.map((treatment: Treatment, index: number) => (
             <Card key={index}>
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
@@ -110,4 +147,14 @@ export default function ServicePage({ params }: { params: { service: string } })
       </div>
     </div>
   );
+}
+
+export function generateMetadata({ params }: ServicePageProps) {
+  const { service } = params;
+  const title = service.charAt(0).toUpperCase() + service.slice(1);
+
+  return {
+    title: `${title} Treatment | Luxury Hotel Spa`,
+    description: `Experience our luxurious ${title.toLowerCase()} treatment services.`,
+  };
 } 
