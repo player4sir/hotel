@@ -1,0 +1,2 @@
+env:
+  CLOUDFLARE_COMPATIBILITY_FLAGS: "nodejs_compat" 
