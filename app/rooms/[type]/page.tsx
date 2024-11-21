@@ -30,7 +30,7 @@ const roomsData = {
       { icon: "🖥️", name: "65寸智能电视" },
       { icon: "☕", name: "Nespresso咖啡机" },
       { icon: "🛁", name: "独立浴缸" },
-      { icon: "🚿", name: "雨林花洒" },
+      { icon: "", name: "雨林花洒" },
       { icon: "👔", name: "熨衣服务" },
       { icon: "🧴", name: "高端洗护用品" },
       { icon: "📶", name: "高速WiFi" },
@@ -66,13 +66,55 @@ const roomsData = {
       { icon: "🥂", name: "迷你吧台" },
     ],
     highlights: [
-      "独立会客厅和餐饮区",
+      "立会客厅和餐饮区",
       "专属管家服务",
       "免费机场接送",
       "行政酒廊特权",
     ],
   },
+  presidential: {
+    name: "总统套房",
+    description: "尊享顶级奢华住宿体验",
+    price: "8,999",
+    size: "120㎡",
+    bedType: "定制特大号床",
+    maxGuests: "4人",
+    view: "全景海景",
+    images: [
+      "https://images.unsplash.com/photo-1566665797739-1674de7a421a",
+      "https://images.unsplash.com/photo-1590490360182-c33d57733427",
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b",
+    ],
+    amenities: [
+      { icon: "🏰", name: "独立会客厅" },
+      { icon: "🍽️", name: "私人餐厅" },
+      { icon: "🎮", name: "娱乐室" },
+      { icon: "💆", name: "私人SPA" },
+      { icon: "🏊", name: "私人泳池" },
+      { icon: "👔", name: "24小时管家" },
+      { icon: "🚗", name: "专车接送" },
+      { icon: "🥂", name: "香槟酒廊" },
+    ],
+    highlights: [
+      "独立楼层尊享私密空间",
+      "24小时专属管家服务",
+      "私人厨师定制餐点",
+      "豪华轿车接送服务",
+    ],
+  },
 };
+
+// 首先定义房间类型的类型
+type RoomType = keyof typeof roomsData;
+
+// 修改 generateStaticParams 函数的写法
+export async function generateStaticParams(): Promise<{ type: string }[]> {
+  return [
+    { type: 'deluxe' },
+    { type: 'suite' },
+    { type: 'presidential' }
+  ];
+}
 
 export default function RoomDetailPage({ params }: { params: { type: string } }) {
   const room = roomsData[params.type as keyof typeof roomsData];
@@ -83,36 +125,47 @@ export default function RoomDetailPage({ params }: { params: { type: string } })
 
   return (
     <div className="min-h-screen pt-20">
-      {/* 头部区域 */}
-      <div className="relative h-[60vh]">
-        <Carousel className="h-full">
-          <CarouselContent>
+      {/* 头部区域 - 修改轮播图部分 */}
+      <div className="relative h-[60vh] w-full">
+        <Carousel
+          className="h-full w-full"
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+        >
+          <CarouselContent className="-ml-0">
             {room.images.map((image, index) => (
-              <CarouselItem key={index} className="h-full">
-                <div className="relative h-full">
-                  <OptimizedImage
-                    src={image}
-                    alt={`${room.name} - 图片 ${index + 1}`}
-                    fill
-                    priority={index === 0}
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                </div>
+              <CarouselItem key={index} className="relative h-[60vh] w-full pl-0">
+                <OptimizedImage
+                  src={image}
+                  alt={`${room.name} - 图片 ${index + 1}`}
+                  fill
+                  priority={index === 0}
+                  className="object-cover"
+                />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="left-4" />
-          <CarouselNext className="right-4" />
+
+          {/* 渐变遮罩 */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+
+          {/* 导航按钮 */}
+          <CarouselPrevious className="absolute left-8 z-20 bg-background/20 hover:bg-background/40 border-0" />
+          <CarouselNext className="absolute right-8 z-20 bg-background/20 hover:bg-background/40 border-0" />
         </Carousel>
 
         {/* 房型信息悬浮卡片 */}
-        <div className="absolute bottom-0 left-0 right-0 p-8">
+        <div className="absolute bottom-0 left-0 right-0 p-8 z-30">
           <div className="container mx-auto">
             <Card className="max-w-2xl bg-background/80 backdrop-blur-lg border-none">
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
+                    <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-3">
+                      {room.bedType}
+                    </div>
                     <h1 className="text-3xl font-bold mb-2">{room.name}</h1>
                     <p className="text-muted-foreground">{room.description}</p>
                   </div>
@@ -195,7 +248,7 @@ export default function RoomDetailPage({ params }: { params: { type: string } })
                 </div>
 
                 <div className="text-sm text-muted-foreground space-y-2">
-                  <p>• 免费取消（提前24小时）</p>
+                  <p>• 免费消（提前24小时）</p>
                   <p>• 入住即可享受会员积分</p>
                   <p>• 预付款可享受额外优惠</p>
                 </div>

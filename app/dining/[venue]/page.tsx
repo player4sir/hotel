@@ -4,71 +4,144 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-const venueData = {
+// 首先定义类型
+interface MenuItem {
+  name: string;
+  description: string;
+  price: number;
+}
+
+interface MenuCategory {
+  [category: string]: MenuItem[];
+}
+
+interface Feature {
+  icon: string;
+  name: string;
+}
+
+interface Venue {
+  name: string;
+  description: string;
+  type: string;
+  hours: string;
+  features: Feature[];  // 修改为包含 icon 和 name 的对象数组
+  atmosphere: string[];
+  image: string;
+  menu: MenuCategory;  // 添加菜单数据
+}
+
+// 更新数据结构
+const venueData: Record<string, Venue> = {
   restaurant: {
-    name: "豪华主餐厅",
-    description: "体验我们以本地食材精心打造的国际美食，享受顶级餐饮体验。",
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
+    name: "星光餐厅",
+    description: "享受精致的国际美食",
+    type: "国际餐厅",
     hours: "06:30 - 22:30",
-    menu: {
-      前菜: [
-        { name: "龙虾浓汤", price: "168", description: "搭配干邑白兰地的浓郁龙虾汤" },
-        { name: "生牛肉薄片", price: "188", description: "配松露油的意式生牛肉薄片" },
-      ],
-      主菜: [
-        { name: "和牛肉眼", price: "588", description: "日本A5级和牛" },
-        { name: "海鲈鱼", price: "328", description: "香煎海鲈鱼配香草柠檬" },
-      ],
-      甜点: [
-        { name: "焦糖布蕾", price: "108", description: "经典法式香草布蕾" },
-        { name: "巧克力舒芙蕾", price: "128", description: "配香草冰淇淋" },
-      ],
-    },
     features: [
-      { icon: "👨‍🍳", name: "米其林星级主厨" },
-      { icon: "🍷", name: "精选葡萄酒单" },
-      { icon: "🌅", name: "城市景观" },
-      { icon: "🎵", name: "现场音乐演奏" },
+      { icon: "🍳", name: "早午餐" },
+      { icon: "🍽️", name: "自助晚餐" },
+      { icon: "📜", name: "单点菜单" },
+      { icon: "🏰", name: "包厢服务" }
     ],
-    atmosphere: [
-      "商务宴请",
-      "浪漫约会",
-      "家庭聚餐",
-      "休闲餐饮",
-    ],
+    atmosphere: ["浪漫", "优雅", "休闲"],
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
+    menu: {
+      "特色推荐": [
+        {
+          name: "和牛牛排",
+          description: "澳洲M9和牛，配季节蔬菜",
+          price: 688
+        },
+        {
+          name: "龙虾意面",
+          description: "波士顿龙虾配自制意面",
+          price: 368
+        }
+      ],
+      "主菜": [
+        {
+          name: "烤三文鱼",
+          description: "挪威三文鱼配芦笋",
+          price: 268
+        }
+      ]
+    }
   },
-  bar: {
-    name: "云端酒吧",
-    description: "在我们的屋顶酒吧享受精心调制的鸡尾酒，欣赏壮丽的城市全景。",
+  lounge: {
+    name: "云端酒廊",
+    description: "品味精选美酒与茶点",
+    type: "酒廊",
+    hours: "14:00 - 00:00",
+    features: [
+      { icon: "🫖", name: "下午茶" },
+      { icon: "🍸", name: "鸡尾酒" },
+      { icon: "🍱", name: "小食" },
+      { icon: "🎵", name: "现场音乐" }
+    ],
+    atmosphere: ["时尚", "轻松", "社交"],
     image: "https://images.unsplash.com/photo-1560624052-449f5ddf0c31",
-    hours: "16:00 - 01:00",
     menu: {
-      鸡尾酒: [
-        { name: "豪华曼哈顿", price: "158", description: "顶级波本威士忌配苦艾酒" },
-        { name: "晚霞马天尼", price: "168", description: "金酒配柑橘和百香果" },
+      "特调鸡尾酒": [
+        {
+          name: "东方明珠",
+          description: "伏特加基底，配以荔枝和玫瑰",
+          price: 128
+        }
       ],
-      小食: [
-        { name: "松露薯条", price: "128", description: "配帕玛森芝士和香草" },
-        { name: "海鲜拼盘", price: "458", description: "精选新鲜海鲜" },
-      ],
-    },
-    features: [
-      { icon: "🍸", name: "调酒师团队" },
-      { icon: "🌃", name: "城市夜景" },
-      { icon: "🎷", name: "爵士乐演出" },
-      { icon: "🛋️", name: "私密卡座" },
-    ],
-    atmosphere: [
-      "休闲社交",
-      "商务洽谈",
-      "浪漫约会",
-      "朋友聚会",
-    ],
+      "下午茶": [
+        {
+          name: "豪华双人下午茶",
+          description: "精选甜点和茶点拼盘",
+          price: 488
+        }
+      ]
+    }
   },
+  chinese: {
+    name: "江南府",
+    description: "正宗的江南风味",
+    type: "中餐厅",
+    hours: "11:30 - 14:30, 17:30 - 22:00",
+    features: [
+      { icon: "🥟", name: "粤式点心" },
+      { icon: "🍜", name: "江浙菜" },
+      { icon: "🏮", name: "私人宴会" },
+      { icon: "🍵", name: "茶室" }
+    ],
+    atmosphere: ["典雅", "传统", "精致"],
+    image: "https://images.unsplash.com/photo-1532453288672-3a27e9be9efd",
+    menu: {
+      "点心": [
+        {
+          name: "虾饺皇",
+          description: "鲜虾配以竹笋",
+          price: 68
+        }
+      ],
+      "主菜": [
+        {
+          name: "东坡肉",
+          description: "传统配方慢炖",
+          price: 188
+        }
+      ]
+    }
+  }
 };
 
+type VenueType = keyof typeof venueData;
+
+export async function generateStaticParams(): Promise<{ venue: string }[]> {
+  return [
+    { venue: 'restaurant' },
+    { venue: 'lounge' },
+    { venue: 'chinese' }
+  ];
+}
+
 export default function VenuePage({ params }: { params: { venue: string } }) {
-  const venue = venueData[params.venue as keyof typeof venueData];
+  const venue = venueData[params.venue as VenueType];
 
   if (!venue) {
     notFound();
@@ -76,8 +149,8 @@ export default function VenuePage({ params }: { params: { venue: string } }) {
 
   return (
     <div className="min-h-screen pt-20">
-      {/* 头部区域 */}
-      <div className="relative h-[60vh]">
+      {/* 头部区域 - 修改图片展示部分 */}
+      <div className="relative h-[60vh] w-full overflow-hidden">
         <OptimizedImage
           src={venue.image}
           alt={venue.name}
@@ -94,6 +167,9 @@ export default function VenuePage({ params }: { params: { venue: string } }) {
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
+                    <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-3">
+                      {venue.type}
+                    </div>
                     <h1 className="text-3xl font-bold mb-2">{venue.name}</h1>
                     <p className="text-muted-foreground">{venue.description}</p>
                   </div>
